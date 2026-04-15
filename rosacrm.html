@@ -1,0 +1,1940 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>RosaCRM — Painel Central</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <!-- Supabase JS SDK v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* ══════════════════════════════════════════════════════════
+   DESIGN SYSTEM — Dark #0a0a0a + Red Neon #ff0000
+══════════════════════════════════════════════════════════ */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --bg: #0a0a0a;
+      --s1: #111;
+      --s2: #181818;
+      --s3: #222;
+      --border: rgba(255, 255, 255, .07);
+      --border2: rgba(255, 255, 255, .04);
+      --red: #ff0000;
+      --red-lo: rgba(255, 0, 0, .08);
+      --red-md: rgba(255, 0, 0, .18);
+      --text: #f2f2f2;
+      --muted: rgba(255, 255, 255, .42);
+      --light: rgba(255, 255, 255, .22);
+      --green: #00e676;
+      --yellow: #ffd740;
+      --orange: #ff9e40;
+      --blue: #448aff;
+      --font: 'Inter', sans-serif;
+      --r: 12px;
+      --r-lg: 18px;
+    }
+
+    html,
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none
+    }
+
+    button {
+      cursor: pointer;
+      font-family: var(--font)
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, .1);
+      border-radius: 3px
+    }
+
+    /* ══════════════════════════════════════════════════════════
+   LOGIN
+══════════════════════════════════════════════════════════ */
+    #login-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden
+    }
+
+    .bg-fx {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none
+    }
+
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .025) 1px, transparent 1px);
+      background-size: 44px 44px
+    }
+
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      animation: orbF 8s ease-in-out infinite
+    }
+
+    .o1 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(255, 0, 0, .2), transparent);
+      top: -150px;
+      left: 50%;
+      transform: translateX(-50%)
+    }
+
+    .o2 {
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(140, 0, 0, .15), transparent);
+      bottom: 0;
+      right: -80px;
+      animation-delay: 3s
+    }
+
+    .o3 {
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(60, 0, 0, .2), transparent);
+      bottom: 60px;
+      left: -60px;
+      animation-delay: 5s
+    }
+
+    @keyframes orbF {
+
+      0%,
+      100% {
+        transform: translateX(-50%) translateY(0) scale(1)
+      }
+
+      50% {
+        transform: translateX(-50%) translateY(-28px) scale(1.04)
+      }
+    }
+
+    .login-card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 420px;
+      margin: 16px;
+      background: rgba(14, 14, 14, .96);
+      border: 1px solid rgba(255, 0, 0, .2);
+      border-radius: 24px;
+      padding: 52px 44px 44px;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, .03), 0 32px 80px rgba(0, 0, 0, .7), 0 0 60px rgba(255, 0, 0, .08)
+    }
+
+    .lc-logo {
+      text-align: center;
+      margin-bottom: 40px
+    }
+
+    .lc-icon {
+      width: 68px;
+      height: 68px;
+      background: linear-gradient(135deg, #ff0000, #8b0000);
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      box-shadow: 0 0 0 1px rgba(255, 0, 0, .3), 0 8px 32px rgba(255, 0, 0, .4);
+      animation: iconP 3s ease-in-out infinite
+    }
+
+    .lc-icon svg {
+      width: 34px;
+      height: 34px;
+      fill: #fff
+    }
+
+    @keyframes iconP {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 1px rgba(255, 0, 0, .3), 0 8px 32px rgba(255, 0, 0, .4)
+      }
+
+      50% {
+        box-shadow: 0 0 0 1px rgba(255, 0, 0, .5), 0 8px 48px rgba(255, 0, 0, .6)
+      }
+    }
+
+    .lc-name {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -1px
+    }
+
+    .lc-name span {
+      color: var(--red)
+    }
+
+    .lc-sub {
+      font-size: 11px;
+      color: var(--light);
+      letter-spacing: .06em;
+      margin-top: 6px
+    }
+
+    .lc-field {
+      margin-bottom: 20px
+    }
+
+    .lc-field label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: rgba(255, 255, 255, .4);
+      margin-bottom: 8px
+    }
+
+    .lc-input {
+      width: 100%;
+      height: 50px;
+      background: rgba(255, 255, 255, .04);
+      border: 1.5px solid rgba(255, 255, 255, .08);
+      border-radius: 12px;
+      padding: 0 18px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s, background .2s
+    }
+
+    .lc-input:focus {
+      border-color: rgba(255, 0, 0, .5);
+      box-shadow: 0 0 0 3px rgba(255, 0, 0, .1);
+      background: rgba(255, 255, 255, .06)
+    }
+
+    .lc-input::placeholder {
+      color: rgba(255, 255, 255, .18)
+    }
+
+    .lc-btn {
+      width: 100%;
+      height: 52px;
+      background: linear-gradient(135deg, #ff0000, #c00000);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-family: var(--font);
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: 0 4px 20px rgba(255, 0, 0, .45);
+      transition: filter .15s, transform .1s
+    }
+
+    .lc-btn:hover {
+      filter: brightness(1.1)
+    }
+
+    .lc-btn:active {
+      transform: scale(.98)
+    }
+
+    .lc-err {
+      background: rgba(255, 0, 0, .1);
+      border: 1px solid rgba(255, 0, 0, .25);
+      border-radius: 10px;
+      padding: 11px 14px;
+      color: #ff8080;
+      font-size: 13px;
+      margin-bottom: 18px;
+      display: none
+    }
+
+    .lc-err.show {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .lc-note {
+      text-align: center;
+      font-size: 11px;
+      color: rgba(255, 255, 255, .18);
+      margin-top: 22px
+    }
+
+    /* ══════════════════════════════════════════════════════════
+   APP
+══════════════════════════════════════════════════════════ */
+    #app {
+      display: none;
+      min-height: 100vh
+    }
+
+    .shell {
+      display: flex;
+      min-height: 100vh
+    }
+
+    /* ── Sidebar ─── */
+    .sidebar {
+      width: 252px;
+      flex-shrink: 0;
+      background: var(--s1);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto
+    }
+
+    .sb-hd {
+      padding: 26px 20px 20px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .sb-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 4px
+    }
+
+    .sb-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #ff0000, #8b0000);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 20px rgba(255, 0, 0, .35)
+    }
+
+    .sb-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: #fff
+    }
+
+    .sb-name {
+      font-size: 19px;
+      font-weight: 900;
+      letter-spacing: -.5px
+    }
+
+    .sb-name span {
+      color: var(--red)
+    }
+
+    .sb-tag {
+      font-size: 9px;
+      color: var(--light);
+      letter-spacing: .08em;
+      margin-top: 2px
+    }
+
+    .sb-nav {
+      padding: 14px 10px;
+      flex: 1
+    }
+
+    .sb-sec {
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      color: rgba(255, 255, 255, .18);
+      padding: 14px 10px 7px
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      transition: background .15s, color .15s;
+      margin-bottom: 2px;
+      position: relative;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left
+    }
+
+    .nav-item:hover {
+      background: var(--red-lo);
+      color: var(--text)
+    }
+
+    .nav-item.active {
+      background: var(--red-md);
+      color: var(--red);
+      font-weight: 700
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 25%;
+      bottom: 25%;
+      width: 3px;
+      background: var(--red);
+      border-radius: 0 3px 3px 0
+    }
+
+    .nav-item svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--red);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      border-radius: 6px;
+      padding: 1px 7px
+    }
+
+    .sb-ft {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border)
+    }
+
+    .sb-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px
+    }
+
+    .sb-av {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--red-md);
+      border: 1px solid rgba(255, 0, 0, .3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--red)
+    }
+
+    .sb-un {
+      font-size: 13px;
+      font-weight: 600
+    }
+
+    .sb-ur {
+      font-size: 10px;
+      color: var(--muted)
+    }
+
+    .btn-logout {
+      width: 100%;
+      height: 36px;
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      transition: all .15s
+    }
+
+    .btn-logout:hover {
+      background: rgba(255, 0, 0, .12);
+      border-color: rgba(255, 0, 0, .3);
+      color: var(--red)
+    }
+
+    /* ── Main ─── */
+    .main {
+      flex: 1;
+      min-width: 0;
+      padding: 30px 26px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px
+    }
+
+    .topbar h2 {
+      font-size: 23px;
+      font-weight: 900;
+      letter-spacing: -.5px
+    }
+
+    .topbar p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px
+    }
+
+    .tb-right {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .pill-date {
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 12px;
+      color: var(--muted)
+    }
+
+    .pill-live {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 230, 118, .08);
+      border: 1px solid rgba(0, 230, 118, .2);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--green)
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: lp 1.4s ease-in-out infinite
+    }
+
+    @keyframes lp {
+
+      0%,
+      100% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(0, 230, 118, .4)
+      }
+
+      50% {
+        opacity: .6;
+        box-shadow: 0 0 0 5px rgba(0, 230, 118, 0)
+      }
+    }
+
+    /* ── Funil ─── */
+    .funnel {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      gap: 12px
+    }
+
+    .fc {
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 19px 17px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .2s, transform .2s
+    }
+
+    .fc:hover {
+      transform: translateY(-2px)
+    }
+
+    .fc::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2.5px;
+      border-radius: var(--r-lg) var(--r-lg) 0 0
+    }
+
+    .fc.c-leads::after {
+      background: var(--muted)
+    }
+
+    .fc.c-addr::after {
+      background: var(--blue)
+    }
+
+    .fc.c-ok::after {
+      background: var(--green)
+    }
+
+    .fc.c-pend::after {
+      background: var(--yellow)
+    }
+
+    .fc.c-aban::after {
+      background: var(--orange)
+    }
+
+    .fc.c-rec::after {
+      background: var(--red)
+    }
+
+    .fc.c-receita {
+      background: linear-gradient(135deg, rgba(255, 0, 0, .05), transparent);
+      border-color: rgba(255, 0, 0, .2);
+      grid-column: span 2
+    }
+
+    .fc.c-receita::after {
+      background: linear-gradient(90deg, #ff0000, #ff6060)
+    }
+
+    .fc-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--muted);
+      margin-bottom: 9px
+    }
+
+    .fc-val {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1
+    }
+
+    .fc.c-ok .fc-val {
+      color: var(--green)
+    }
+
+    .fc.c-pend .fc-val {
+      color: var(--yellow)
+    }
+
+    .fc.c-aban .fc-val {
+      color: var(--orange)
+    }
+
+    .fc.c-rec .fc-val {
+      color: var(--red)
+    }
+
+    .fc.c-receita .fc-val {
+      color: #ff6060;
+      font-size: 21px
+    }
+
+    .fc-sub {
+      font-size: 11px;
+      color: var(--light);
+      margin-top: 5px
+    }
+
+    .fc-ico {
+      position: absolute;
+      bottom: 13px;
+      right: 15px;
+      opacity: .07;
+      font-size: 34px;
+      line-height: 1
+    }
+
+    /* ── Panel ─── */
+    .panel {
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      overflow: hidden
+    }
+
+    .panel-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .panel-t {
+      font-size: 15px;
+      font-weight: 800
+    }
+
+    .panel-c {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 400
+    }
+
+    .filters {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .inp-s {
+      height: 36px;
+      width: 200px;
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 14px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      outline: none;
+      transition: border-color .2s
+    }
+
+    .inp-s:focus {
+      border-color: rgba(255, 0, 0, .4)
+    }
+
+    .inp-s::placeholder {
+      color: var(--light)
+    }
+
+    .sel {
+      height: 36px;
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 10px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      outline: none;
+      cursor: pointer
+    }
+
+    .btn-cl {
+      height: 36px;
+      padding: 0 12px;
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      transition: color .15s
+    }
+
+    .btn-cl:hover {
+      color: var(--text)
+    }
+
+    /* Realtime indicator */
+    .rt-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      background: rgba(68, 138, 255, .08);
+      border: 1px solid rgba(68, 138, 255, .2);
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--blue)
+    }
+
+    .rt-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--blue);
+      animation: lp 1s ease-in-out infinite
+    }
+
+    /* ── Tabela ─── */
+    .tbl-wrap {
+      overflow-x: auto
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px
+    }
+
+    thead th {
+      padding: 11px 14px;
+      text-align: left;
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      white-space: nowrap;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, .015)
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border2);
+      transition: background .1s
+    }
+
+    tbody tr:last-child {
+      border-bottom: none
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, .025)
+    }
+
+    td {
+      padding: 11px 14px;
+      vertical-align: middle
+    }
+
+    /* ─ Row flash ao entrar dado novo ─ */
+    @keyframes rowFlash {
+      0% {
+        background: rgba(255, 0, 0, .2)
+      }
+
+      100% {
+        background: transparent
+      }
+    }
+
+    tr.new-row {
+      animation: rowFlash 2s ease-out
+    }
+
+    .c-id {
+      color: var(--light);
+      font-size: 11px
+    }
+
+    .c-nome strong {
+      font-size: 13px;
+      font-weight: 700;
+      display: block;
+      margin-bottom: 1px
+    }
+
+    .c-nome span {
+      font-size: 11px;
+      color: var(--muted)
+    }
+
+    .c-cpf {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap
+    }
+
+    .c-addr {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+      max-width: 140px
+    }
+
+    .c-val {
+      font-weight: 800;
+      color: var(--green);
+      white-space: nowrap
+    }
+
+    .c-date {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap
+    }
+
+    .c-pix {
+      max-width: 160px
+    }
+
+    .pix-pill {
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 5px 8px;
+      font-size: 10px;
+      color: var(--muted);
+      word-break: break-all;
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+      display: block
+    }
+
+    .pix-pill:hover {
+      border-color: rgba(255, 0, 0, .4);
+      color: var(--text)
+    }
+
+    /* Card info */
+    .card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px
+    }
+
+    .card-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text)
+    }
+
+    .card-last {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: monospace;
+      letter-spacing: 1px
+    }
+
+    .card-holder {
+      font-size: 10px;
+      color: var(--light)
+    }
+
+    /* Bandeira colors */
+    .brand-visa {
+      color: #1a1f71
+    }
+
+    .brand-mastercard {
+      color: #eb001b
+    }
+
+    .brand-elo {
+      color: #ffcf00
+    }
+
+    .brand-amex {
+      color: #007bc1
+    }
+
+    .brand-hiper {
+      color: #f36d21
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 20px;
+      border-radius: 4px;
+      object-fit: contain;
+      background: #fff;
+      padding: 1px;
+      border: 1px solid rgba(255, 255, 255, .1)
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      white-space: nowrap
+    }
+
+    .b-ok {
+      background: rgba(0, 230, 118, .1);
+      color: var(--green);
+      border: 1px solid rgba(0, 230, 118, .25)
+    }
+
+    .b-pend {
+      background: rgba(255, 215, 64, .1);
+      color: var(--yellow);
+      border: 1px solid rgba(255, 215, 64, .25)
+    }
+
+    .b-aban {
+      background: rgba(255, 158, 64, .1);
+      color: var(--orange);
+      border: 1px solid rgba(255, 158, 64, .25)
+    }
+
+    .b-rec {
+      background: rgba(255, 0, 0, .1);
+      color: #ff6060;
+      border: 1px solid rgba(255, 0, 0, .25)
+    }
+
+    .b-init {
+      background: rgba(255, 255, 255, .05);
+      color: var(--muted);
+      border: 1px solid var(--border)
+    }
+
+    .meth-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 800;
+      white-space: nowrap
+    }
+
+    .m-pix {
+      background: rgba(68, 138, 255, .1);
+      color: var(--blue);
+      border: 1px solid rgba(68, 138, 255, .25)
+    }
+
+    .m-card {
+      background: rgba(0, 230, 118, .1);
+      color: var(--green);
+      border: 1px solid rgba(0, 230, 118, .2)
+    }
+
+    /* Row actions */
+    .row-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .btn-wpp {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 11px;
+      background: rgba(0, 230, 118, .1);
+      border: 1px solid rgba(0, 230, 118, .25);
+      border-radius: 8px;
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+      transition: background .15s
+    }
+
+    .btn-wpp:hover {
+      background: rgba(0, 230, 118, .22)
+    }
+
+    .btn-wpp svg {
+      width: 13px;
+      height: 13px;
+      fill: currentColor
+    }
+
+    .btn-del {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: rgba(255, 0, 0, .08);
+      border: 1px solid rgba(255, 0, 0, .2);
+      border-radius: 7px;
+      color: #ff6060;
+      font-size: 12px;
+      transition: background .15s
+    }
+
+    .btn-del:hover {
+      background: rgba(255, 0, 0, .2)
+    }
+
+    /* Empty/Loading */
+    .tbl-empty {
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--muted)
+    }
+
+    .tbl-empty .ico {
+      font-size: 40px;
+      margin-bottom: 12px
+    }
+
+    .tbl-empty p {
+      font-size: 15px;
+      font-weight: 600
+    }
+
+    .tbl-empty small {
+      display: block;
+      margin-top: 6px;
+      font-size: 12px;
+      opacity: .6
+    }
+
+    .loader {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 2px solid rgba(255, 0, 0, .2);
+      border-top-color: var(--red);
+      border-radius: 50%;
+      animation: spin .7s linear infinite
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    /* Paginação */
+    .pag {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 20px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted)
+    }
+
+    .pag-links {
+      display: flex;
+      gap: 6px
+    }
+
+    .pag-a {
+      height: 30px;
+      min-width: 30px;
+      padding: 0 8px;
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .15s;
+      cursor: pointer
+    }
+
+    .pag-a:hover,
+    .pag-a.act {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff
+    }
+
+    /* ── Modal PIX ─── */
+    .modal-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .75);
+      backdrop-filter: blur(6px);
+      z-index: 8000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px
+    }
+
+    .modal-bg.open {
+      display: flex
+    }
+
+    .modal {
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 30px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, .6);
+      position: relative
+    }
+
+    .modal h3 {
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 20px
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 30px;
+      height: 30px;
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color .15s
+    }
+
+    .modal-close:hover {
+      color: var(--text)
+    }
+
+    .pix-full {
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 11px;
+      color: var(--muted);
+      word-break: break-all;
+      margin-bottom: 16px;
+      line-height: 1.7;
+      font-family: monospace
+    }
+
+    .btn-copy-pix {
+      width: 100%;
+      height: 44px;
+      background: var(--red);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 700;
+      transition: filter .15s
+    }
+
+    .btn-copy-pix:hover {
+      filter: brightness(1.1)
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 26px;
+      right: 26px;
+      z-index: 9999;
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 13px;
+      color: var(--green);
+      font-weight: 600;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, .7);
+      transform: translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: all .3s cubic-bezier(.34, 1.56, .64, 1)
+    }
+
+    #toast.show {
+      transform: translateY(0);
+      opacity: 1
+    }
+
+    /* Responsive */
+    @media(max-width:860px) {
+      .sidebar {
+        display: none
+      }
+
+      .main {
+        padding: 18px 12px 40px
+      }
+
+      .funnel {
+        grid-template-columns: repeat(2, 1fr)
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ══════════════════════════════════════════════════════════
+     LOGIN
+══════════════════════════════════════════════════════════ -->
+  <div id="login-screen">
+    <div class="bg-fx">
+      <div class="bg-grid"></div>
+      <div class="bg-orb o1"></div>
+      <div class="bg-orb o2"></div>
+      <div class="bg-orb o3"></div>
+    </div>
+    <div class="login-card">
+      <div class="lc-logo">
+        <div class="lc-icon"><svg viewBox="0 0 24 24">
+            <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z" />
+          </svg></div>
+        <div class="lc-name">Rosa<span>CRM</span></div>
+        <div class="lc-sub">PAINEL DE CONTROLE CENTRAL</div>
+      </div>
+      <div class="lc-err" id="login-err">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z" />
+        </svg>
+        <span id="login-err-txt">Senha incorreta.</span>
+      </div>
+      <div class="lc-field">
+        <label for="l-user">Usuário</label>
+        <input id="l-user" class="lc-input" type="text" placeholder="admin" autocomplete="username">
+      </div>
+      <div class="lc-field">
+        <label for="l-pass">Senha</label>
+        <input id="l-pass" class="lc-input" type="password" placeholder="••••••••••" autocomplete="current-password">
+      </div>
+      <button class="lc-btn" onclick="doLogin()">Entrar no RosaCRM</button>
+      <div class="lc-note">🔒 Acesso restrito — dados ao vivo via Supabase</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+     APP
+══════════════════════════════════════════════════════════ -->
+  <div id="app">
+    <div class="shell">
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sb-hd">
+          <div class="sb-logo">
+            <div class="sb-icon"><svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z" />
+              </svg></div>
+            <div>
+              <div class="sb-name">Rosa<span>CRM</span></div>
+            </div>
+          </div>
+          <div class="sb-tag">PAINEL DE CONTROLE CENTRAL</div>
+        </div>
+        <nav class="sb-nav">
+          <div class="sb-sec">Dashboard</div>
+          <button class="nav-item active" id="nav-all" onclick="setFilter('all','')">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
+            </svg>
+            Todos os Leads
+          </button>
+          <div class="sb-sec">Por Status</div>
+          <button class="nav-item" id="nav-Aprovado" onclick="setFilter('status','Aprovado')">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+            </svg>
+            Aprovados
+            <span class="nav-badge" id="nb-Aprovado">0</span>
+          </button>
+          <button class="nav-item" id="nav-Pendente" onclick="setFilter('status','Pendente')">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+            </svg>
+            Pendentes
+            <span class="nav-badge" id="nb-Pendente">0</span>
+          </button>
+          <button class="nav-item" id="nav-Abandonado" onclick="setFilter('status','Abandonado')">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+            </svg>
+            Abandonados
+          </button>
+          <button class="nav-item" id="nav-Recusado" onclick="setFilter('status','Recusado')">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z" />
+            </svg>
+            Recusados
+          </button>
+          <div class="sb-sec">Por Método</div>
+          <button class="nav-item" id="nav-PIX" onclick="setFilter('metodo','PIX')">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zM12 2L2 7v1h20V7z" />
+            </svg>
+            PIX
+          </button>
+          <button class="nav-item" id="nav-CARTAO" onclick="setFilter('metodo','CARTAO')">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z" />
+            </svg>
+            Cartão
+          </button>
+        </nav>
+        <div class="sb-ft">
+          <div class="sb-user">
+            <div class="sb-av">A</div>
+            <div>
+              <div class="sb-un">Administrador</div>
+              <div class="sb-ur">RosaCRM · Supabase</div>
+            </div>
+          </div>
+          <button class="btn-logout" onclick="doLogout()">⏻ Sair</button>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="main">
+        <div class="topbar">
+          <div>
+            <h2>Dashboard CRM</h2>
+            <p>Leads e transações em tempo real via Supabase</p>
+          </div>
+          <div class="tb-right">
+            <div class="pill-date" id="clock"></div>
+            <div class="pill-live">
+              <div class="live-dot"></div>REALTIME ATIVO
+            </div>
+          </div>
+        </div>
+
+        <!-- Funil -->
+        <div class="funnel" id="funnel-grid">
+          <div class="fc c-leads">
+            <div class="fc-label">Total de Leads</div>
+            <div class="fc-val" id="f-total">—</div>
+            <div class="fc-sub">Carregando…</div>
+            <div class="fc-ico">👥</div>
+          </div>
+          <div class="fc c-addr">
+            <div class="fc-label">Com Endereço</div>
+            <div class="fc-val" id="f-addr">—</div>
+            <div class="fc-sub">Preencheram entrega</div>
+            <div class="fc-ico">📍</div>
+          </div>
+          <div class="fc c-ok">
+            <div class="fc-label">Aprovados</div>
+            <div class="fc-val" id="f-ok">—</div>
+            <div class="fc-sub">Pagamento confirmado</div>
+            <div class="fc-ico">✅</div>
+          </div>
+          <div class="fc c-pend">
+            <div class="fc-label">Pendentes</div>
+            <div class="fc-val" id="f-pend">—</div>
+            <div class="fc-sub">Aguardando pagamento</div>
+            <div class="fc-ico">⏳</div>
+          </div>
+          <div class="fc c-aban">
+            <div class="fc-label">Abandonados</div>
+            <div class="fc-val" id="f-aban">—</div>
+            <div class="fc-sub">Não finalizaram</div>
+            <div class="fc-ico">🚪</div>
+          </div>
+          <div class="fc c-rec">
+            <div class="fc-label">Recusados</div>
+            <div class="fc-val" id="f-rec">—</div>
+            <div class="fc-sub">Pagamento falhou</div>
+            <div class="fc-ico">❌</div>
+          </div>
+          <div class="fc c-receita">
+            <div class="fc-label">💰 Receita Total Aprovada</div>
+            <div class="fc-val" id="f-receita">—</div>
+            <div class="fc-sub">Somente transações aprovadas</div>
+          </div>
+        </div>
+
+        <!-- Tabela -->
+        <div class="panel">
+          <div class="panel-hd">
+            <div>
+              <span class="panel-t">Leads &amp; Transações</span>
+              <span class="panel-c" id="count-txt"></span>
+            </div>
+            <div class="filters">
+              <input class="inp-s" id="search-inp" type="text" placeholder="🔍 Nome, e-mail, CPF…"
+                oninput="renderTable()">
+              <select class="sel" id="sel-status" onchange="renderTable()">
+                <option value="">Status</option>
+                <option>Iniciado</option>
+                <option>Pendente</option>
+                <option>Aprovado</option>
+                <option>Abandonado</option>
+                <option>Recusado</option>
+              </select>
+              <select class="sel" id="sel-metodo" onchange="renderTable()">
+                <option value="">Método</option>
+                <option value="PIX">PIX</option>
+                <option value="CARTAO">Cartão</option>
+              </select>
+              <button class="btn-cl" onclick="clearFilters()">Limpar</button>
+              <div class="rt-pill">
+                <div class="rt-dot"></div>REALTIME
+              </div>
+            </div>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Cliente</th>
+                  <th>CPF / WhatsApp</th>
+                  <th>Endereço</th>
+                  <th>Origem</th>
+                  <th>Método</th>
+                  <th>Cartão</th>
+                  <th>Valor</th>
+                  <th>Status</th>
+                  <th>PIX Code</th>
+                  <th>WhatsApp</th>
+                  <th>Data</th>
+                </tr>
+              </thead>
+              <tbody id="tbl-body">
+                <tr>
+                  <td colspan="12">
+                    <div class="tbl-empty">
+                      <div class="loader"></div>
+                      <p style="margin-top:14px;font-size:14px;">Conectando ao Supabase…</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pag" id="pag-bar"></div>
+        </div>
+      </main>
+    </div>
+  </div><!-- /app -->
+
+  <!-- Modal PIX -->
+  <div class="modal-bg" id="pix-modal" onclick="if(event.target===this)closePixModal()">
+    <div class="modal">
+      <button class="modal-close" onclick="closePixModal()">✕</button>
+      <h3>📋 Código PIX Completo</h3>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Lead #<span id="pix-lead-id"></span></p>
+      <div class="pix-full" id="pix-full-code"></div>
+      <button class="btn-copy-pix" onclick="copyPixFull()">Copiar código PIX completo</button>
+    </div>
+  </div>
+
+  <div id="toast">✅ Ação realizada!</div>
+
+  <script>
+    // ══════════════════════════════════════════════════════════════
+    //  SUPABASE CONFIG
+    // ══════════════════════════════════════════════════════════════
+    const SUPABASE_URL = 'https://sixyksfjdjaoxulfqxnx.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpeHlrc2ZqZGphb3h1bGZxeG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjA4MzksImV4cCI6MjA5MTgzNjgzOX0.nqu56SR-V0Nej4JhadvzffGrMpl5CDA5Nz7OhfJwzqk';
+    const TABLE = 'crm_vendas';
+    const PER_PAGE = 25;
+
+    // ++ Credenciais de acesso ao painel ++
+    const CREDENTIALS = { admin: 'rosa2025' };
+
+    // Inicializa cliente Supabase
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // ══════════════════════════════════════════════════════════════
+    //  ESTADO
+    // ══════════════════════════════════════════════════════════════
+    let leads = [];   // todos os registros carregados
+    let curPage = 1;
+    let activeFilter = { type: 'all', value: '' };
+    let newRowIds = new Set(); // IDs que chegaram via Realtime (para flash)
+
+    // ══════════════════════════════════════════════════════════════
+    //  LOGIN
+    // ══════════════════════════════════════════════════════════════
+    function doLogin() {
+      const u = document.getElementById('l-user').value.trim();
+      const p = document.getElementById('l-pass').value.trim();
+      if (CREDENTIALS[u] && CREDENTIALS[u] === p) {
+        sessionStorage.setItem('rosacrm_auth', '1');
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        init();
+      } else {
+        const e = document.getElementById('login-err');
+        document.getElementById('login-err-txt').textContent = 'Usuário ou senha incorretos.';
+        e.classList.add('show');
+        setTimeout(() => e.classList.remove('show'), 3000);
+      }
+    }
+    function doLogout() {
+      sessionStorage.removeItem('rosacrm_auth');
+      location.reload();
+    }
+    ['l-user', 'l-pass'].forEach(id =>
+      document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); })
+    );
+    if (sessionStorage.getItem('rosacrm_auth') === '1') {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      init();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  INIT
+    // ══════════════════════════════════════════════════════════════
+    async function init() {
+      tickClock();
+      setInterval(tickClock, 1000);
+      await fetchLeads();
+      subscribeRealtime();
+    }
+    function tickClock() {
+      const d = new Date();
+      document.getElementById('clock').textContent =
+        d.toLocaleDateString('pt-BR') + ' · ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  SUPABASE: Buscar leads
+    // ══════════════════════════════════════════════════════════════
+    async function fetchLeads() {
+      const { data, error } = await db
+        .from(TABLE)
+        .select('*')
+        .order('id', { ascending: false });
+
+      if (error) {
+        console.error('Supabase error:', error);
+        document.getElementById('tbl-body').innerHTML = `
+      <tr><td colspan="12">
+        <div class="tbl-empty">
+          <div class="ico">⚠️</div>
+          <p>Erro ao conectar ao Supabase</p>
+          <small>${error.message}</small>
+        </div>
+      </td></tr>`;
+        return;
+      }
+      leads = data || [];
+      renderAll();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  SUPABASE REALTIME — Subscription
+    // ══════════════════════════════════════════════════════════════
+    function subscribeRealtime() {
+      db.channel('crm_realtime')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: TABLE }, payload => {
+          leads.unshift(payload.new);
+          newRowIds.add(payload.new.id);
+          renderAll();
+          showToast('🔴 Novo lead recebido: ' + (payload.new.nome || payload.new.email || '#' + payload.new.id));
+          // Remove flash após 3 s
+          setTimeout(() => { newRowIds.delete(payload.new.id); }, 3000);
+        })
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: TABLE }, payload => {
+          const idx = leads.findIndex(l => l.id === payload.new.id);
+          if (idx !== -1) leads[idx] = payload.new;
+          else leads.unshift(payload.new);
+          renderAll();
+          showToast('🔄 Lead atualizado: #' + payload.new.id);
+        })
+        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: TABLE }, payload => {
+          leads = leads.filter(l => l.id !== payload.old.id);
+          renderAll();
+        })
+        .subscribe();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  RENDER ALL
+    // ══════════════════════════════════════════════════════════════
+    function renderAll() {
+      renderFunnel();
+      renderBadges();
+      renderTable();
+    }
+
+    // ── Funil ──────────────────────────────────────────────────
+    function renderFunnel() {
+      const total = leads.length;
+      const comEnd = leads.filter(l => l.cep).length;
+      const aprov = leads.filter(l => l.status === 'Aprovado').length;
+      const pend = leads.filter(l => l.status === 'Pendente').length;
+      const aban = leads.filter(l => l.status === 'Abandonado').length;
+      const rec = leads.filter(l => l.status === 'Recusado').length;
+      const receita = leads.filter(l => l.status === 'Aprovado').reduce((s, l) => s + (l.tronfy_valor || 0), 0);
+
+      document.getElementById('f-total').textContent = total;
+      document.getElementById('f-addr').textContent = comEnd;
+      document.getElementById('f-ok').textContent = aprov;
+      document.getElementById('f-pend').textContent = pend;
+      document.getElementById('f-aban').textContent = aban;
+      document.getElementById('f-rec').textContent = rec;
+      document.getElementById('f-receita').textContent = fmtBRL(receita);
+    }
+    function renderBadges() {
+      ['Aprovado', 'Pendente'].forEach(s => {
+        const el = document.getElementById('nb-' + s);
+        if (el) el.textContent = leads.filter(l => l.status === s).length;
+      });
+    }
+
+    // ── Filtros ────────────────────────────────────────────────
+    function setFilter(type, value) {
+      activeFilter = { type, value };
+      curPage = 1;
+      document.getElementById('search-inp').value = '';
+      document.getElementById('sel-status').value = '';
+      document.getElementById('sel-metodo').value = '';
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      const navId = value ? 'nav-' + value : 'nav-all';
+      document.getElementById(navId)?.classList.add('active');
+      renderTable();
+    }
+    function clearFilters() {
+      document.getElementById('search-inp').value = '';
+      document.getElementById('sel-status').value = '';
+      document.getElementById('sel-metodo').value = '';
+      activeFilter = { type: 'all', value: '' };
+      curPage = 1;
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.getElementById('nav-all').classList.add('active');
+      renderTable();
+    }
+    function getFiltered() {
+      const q = (document.getElementById('search-inp')?.value || '').toLowerCase();
+      const st = document.getElementById('sel-status')?.value || '';
+      const mt = document.getElementById('sel-metodo')?.value || '';
+      return leads.filter(l => {
+        if (activeFilter.type === 'status' && l.status !== activeFilter.value) return false;
+        if (activeFilter.type === 'metodo' && (l.tronfy_metodo || '') !== activeFilter.value) return false;
+        if (st && l.status !== st) return false;
+        if (mt && (l.tronfy_metodo || '') !== mt) return false;
+        if (q) {
+          const hay = [l.nome, l.email, l.cpf, l.whatsapp, l.tronfy_transaction_id, l.titular_cartao, l.bandeira_cartao, l.final_cartao].join(' ').toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+    }
+
+    // ── Tabela ─────────────────────────────────────────────────
+    function renderTable() {
+      const data = getFiltered();
+      const total = data.length;
+      const pages = Math.max(1, Math.ceil(total / PER_PAGE));
+      if (curPage > pages) curPage = pages;
+      const slice = data.slice((curPage - 1) * PER_PAGE, curPage * PER_PAGE);
+
+      document.getElementById('count-txt').textContent = `\u2002${total} registro${total !== 1 ? 's' : ''}`;
+
+      const tbody = document.getElementById('tbl-body');
+      if (!slice.length) {
+        tbody.innerHTML = `<tr><td colspan="12"><div class="tbl-empty"><div class="ico">🔍</div><p>Nenhum registro encontrado</p><small>Ajuste os filtros</small></div></td></tr>`;
+      } else {
+        tbody.innerHTML = slice.map(l => `
+    <tr id="row-${l.id}" class="${newRowIds.has(l.id) ? 'new-row' : ''}">
+      <td class="c-id">${l.id}</td>
+      <td class="c-nome">
+        <strong>${esc(l.nome) || '—'}</strong>
+        <span>${esc(l.email) || '—'}</span>
+      </td>
+      <td class="c-cpf">
+        ${esc(l.cpf) || '—'}
+        ${l.whatsapp ? `<br><span style="color:var(--light)">${esc(l.whatsapp)}</span>` : ''}
+      </td>
+      <td class="c-addr">
+        ${l.rua
+            ? `${esc(l.rua)}, ${esc(l.numero)}<br><span style="color:var(--light)">${esc(l.cidade)} – ${esc(l.estado)}</span>`
+            : '<span style="color:var(--border)">—</span>'}
+      </td>
+      <td style="font-size:10px;color:var(--light);max-width:110px;word-break:break-all">
+        ${l.origem_url
+            ? `<a href="${esc(l.origem_url)}" target="_blank" style="color:var(--blue)">${domain(l.origem_url)}</a>`
+            : '—'}
+      </td>
+      <td>${methBadge(l.tronfy_metodo)}</td>
+      <td>${cardInfo(l)}</td>
+      <td class="c-val">${fmtBRLcents(l.tronfy_valor)}</td>
+      <td>${statusBadge(l.status)}</td>
+      <td class="c-pix">${pixSnippet(l)}</td>
+      <td>${wppBtn(l)}</td>
+      <td class="c-date">
+        ${fmtDate(l.created_at)}
+      </td>
+    </tr>`).join('');
+      }
+      renderPag(pages, data.length);
+    }
+
+    // ── Paginação ──────────────────────────────────────────────
+    function renderPag(pages, total) {
+      const bar = document.getElementById('pag-bar');
+      if (pages <= 1) { bar.innerHTML = ''; return; }
+      const s = (curPage - 1) * PER_PAGE + 1, e = Math.min(curPage * PER_PAGE, total);
+      let links = '';
+      if (curPage > 1) links += `<span class="pag-a" onclick="goPag(${curPage - 1})">←</span>`;
+      const ps = Math.max(1, curPage - 2), pe = Math.min(pages, curPage + 2);
+      for (let i = ps; i <= pe; i++) links += `<span class="pag-a${i === curPage ? ' act' : ''}" onclick="goPag(${i})">${i}</span>`;
+      if (curPage < pages) links += `<span class="pag-a" onclick="goPag(${curPage + 1})">→</span>`;
+      bar.innerHTML = `<span>Mostrando ${s}–${e} de ${total}</span><div class="pag-links">${links}</div>`;
+    }
+    function goPag(p) { curPage = p; renderTable(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+    // ══════════════════════════════════════════════════════════════
+    //  HELPERS DE RENDERIZAÇÃO
+    // ══════════════════════════════════════════════════════════════
+    function esc(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function domain(url) { try { return new URL(url).hostname; } catch { return (url || '').substring(0, 20); } }
+
+    function fmtBRL(cents) {
+      return 'R$ ' + (cents / 100).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+    function fmtBRLcents(cents) {
+      if (!cents) return '<span style="color:var(--border)">—</span>';
+      return `<span style="color:var(--green);font-weight:800">${fmtBRL(cents)}</span>`;
+    }
+    function fmtDate(dt) {
+      if (!dt) return '—';
+      const d = new Date(dt);
+      return d.toLocaleDateString('pt-BR') + '<br><span style="opacity:.55">' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) + '</span>';
+    }
+    function statusBadge(s) {
+      const cls = { Aprovado: 'b-ok', Pendente: 'b-pend', Abandonado: 'b-aban', Recusado: 'b-rec', Iniciado: 'b-init' };
+      return `<span class="badge ${cls[s] || 'b-init'}">${s || 'Iniciado'}</span>`;
+    }
+    function methBadge(m) {
+      if (!m) return '<span style="color:var(--border)">—</span>';
+      return `<span class="meth-badge ${m === 'PIX' ? 'm-pix' : 'm-card'}">${m === 'PIX' ? '🔵' : '💳'} ${m}</span>`;
+    }
+
+    // ── Informações do Cartão ──────────────────────────────────
+    const BRAND_LOGOS = {
+      visa: 'https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons/flat/visa.svg',
+      mastercard: 'https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons/flat/mastercard.svg',
+      master: 'https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons/flat/mastercard.svg',
+      elo: 'https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons/flat/elo.svg',
+      amex: 'https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons/flat/amex.svg',
+      hipercard: 'https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons/flat/hipercard.svg',
+      hiper: 'https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons/flat/hipercard.svg',
+    };
+    function cardInfo(l) {
+      // Tenta pegar dados dos campos: titular_cartao, bandeira_cartao, final_cartao
+      const titular = l.titular_cartao || l.card_holder || l.nome_titular || null;
+      const bandeira = (l.bandeira_cartao || l.card_brand || l.bandeira || '').toLowerCase();
+      const final4 = l.final_cartao || l.card_last4 || l.ultimos_digitos || null;
+
+      if (!titular && !bandeira && !final4) {
+        return '<span style="color:var(--border)">—</span>';
+      }
+
+      const logo = BRAND_LOGOS[bandeira]
+        ? `<img src="${BRAND_LOGOS[bandeira]}" class="brand-icon" alt="${bandeira}">`
+        : bandeira ? `<span style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--yellow)">${esc(bandeira)}</span>` : '';
+
+      return `
+    <div class="card-info">
+      ${logo ? `<div class="card-brand">${logo} ${esc(bandeira.toUpperCase())}</div>` : ''}
+      ${final4 ? `<div class="card-last">•••• ${esc(final4)}</div>` : ''}
+      ${titular ? `<div class="card-holder">${esc(titular)}</div>` : ''}
+    </div>`;
+    }
+
+    // ── PIX snippet ────────────────────────────────────────────
+    function pixSnippet(l) {
+      const code = l.tronfy_pix_code || l.pix_code || '';
+      if (!code) return '<span style="color:var(--border)">—</span>';
+      return `<div class="pix-pill" onclick="openPixModal(${l.id}, \`${encodeURIComponent(code)}\`)" title="Ver código PIX completo">${code.substring(0, 26)}…</div>`;
+    }
+
+    // ── WhatsApp button ────────────────────────────────────────
+    function wppBtn(l) {
+      const n = (l.whatsapp || '').replace(/\D/g, '');
+      if (!n || n.length < 10) return '<span style="color:var(--border)">—</span>';
+      const msg = encodeURIComponent(`Olá ${l.nome}! Vi que você demonstrou interesse em nosso produto. Posso te ajudar a finalizar?`);
+      return `
+    <a href="https://wa.me/55${n}?text=${msg}" target="_blank" class="btn-wpp">
+      <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Chamar
+    </a>`;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  MODAL PIX
+    // ══════════════════════════════════════════════════════════════
+    let _pixCode = '';
+    function openPixModal(id, encoded) {
+      _pixCode = decodeURIComponent(encoded);
+      document.getElementById('pix-lead-id').textContent = id;
+      document.getElementById('pix-full-code').textContent = _pixCode;
+      document.getElementById('pix-modal').classList.add('open');
+    }
+    function closePixModal() { document.getElementById('pix-modal').classList.remove('open'); }
+    function copyPixFull() {
+      navigator.clipboard.writeText(_pixCode).then(() => showToast('📋 Código PIX copiado!'));
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  TOAST
+    // ══════════════════════════════════════════════════════════════
+    function showToast(msg, color = 'var(--green)') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.color = color;
+      t.classList.add('show');
+      clearTimeout(t._tid);
+      t._tid = setTimeout(() => t.classList.remove('show'), 3000);
+    }
+  </script>
+</body>
+
+</html>
